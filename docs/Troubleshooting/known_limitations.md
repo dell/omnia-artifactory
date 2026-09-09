@@ -45,6 +45,64 @@ For tracking, see: [pulp_rpm issue #4241](https://github.com/pulp/pulp_rpm/issue
 - New VAST storage mounts added after an upgrade are not retained during rollback.
 - Slurm and Kubernetes upgrade or rollback operations reboot all affected nodes simultaneously, resulting in temporary cluster downtime. Schedule these operations during a maintenance window.
 
+### Certificate Issue During Upgrade After Extended Cluster Runtime
+
+**Applicable to:** Omnia upgrade (2.1.0.0 → 2.2.0.1) when there is a significant time gap between cluster setup and upgrade.
+
+**Issue:**
+
+The "Get smd group data" task fails during upgrade to 2.2.0.1 due to certificate issues when there has been an extended period between cluster deployment and the upgrade operation.
+
+**Steps to Reproduce:**
+
+1. Bring up Kubernetes cluster in Omnia 2.1.0.0
+2. Wait for more than 12 hours before upgrade
+3. Upgrade core container to 2.2.0.1
+4. Run `prepare_upgrade.yml` playbook
+5. Run `upgrade.yml` playbook
+
+**Symptoms:**
+
+- The "Get smd group data" task fails during the upgrade process
+- Certificate-related errors are reported in the task failure
+- The upgrade process cannot proceed past this step
+
+**Cause:**
+
+Certificates used by OpenCHAMI services may expire or become invalid after extended periods, causing the SMD (State Management Database) group data retrieval to fail during the upgrade process.
+
+**Workaround:**
+
+1. Check the certificate status on the OIM before starting the upgrade:
+
+    ```bash title="Run on: OIM host"
+    systemctl status acme-deploy.service
+    ```
+
+2. If certificates are expired or invalid, renew them before proceeding with the upgrade:
+
+    ```bash title="Run on: OIM host"
+    systemctl restart acme-deploy.service
+    ```
+
+3. Verify that OpenCHAMI services are operational after certificate renewal:
+
+    ```bash title="Run on: OIM host"
+    ochami smd service status
+    systemctl restart openchami.target
+    ```
+
+4. Once services are operational, proceed with the upgrade:
+
+    ```bash title="Run on: omnia_core container"
+    cd /omnia/upgrade
+    ansible-playbook upgrade.yml
+    ```
+
+**Recommendation:**
+
+For clusters that have been running for extended periods (more than 12 hours) before upgrade, verify certificate status and renew if necessary before initiating the upgrade process.
+
 ### Upgrade Gets Stuck at omnia.sh --upgrade with External NFS
 
 **Applicable to:** Omnia Core upgrade (2.1.0.0 → 2.2.0.1 and later) when using an external NFS share (for example, Dell PowerScale, generic NFS server).

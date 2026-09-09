@@ -45,6 +45,40 @@ For tracking, see: [pulp_rpm issue #4241](https://github.com/pulp/pulp_rpm/issue
 - New VAST storage mounts added after an upgrade are not retained during rollback.
 - Slurm and Kubernetes upgrade or rollback operations reboot all affected nodes simultaneously, resulting in temporary cluster downtime. Schedule these operations during a maintenance window.
 
+### OpenCHAMI Deployment May Fail When SMD Certificate Expires
+
+**Issue:**
+
+During configure_ochami execution, the task "Get SMD group data" may fail with an error similar to:
+
+```
+failed to verify certificate: x509: certificate has expired or is not yet valid
+```
+
+The failure occurs when OpenCHAMI components attempt to retrieve group information from SMD using an expired TLS certificate.
+
+**Example error:**
+
+```
+GetGroups(): error getting groups:
+failed to execute HTTP request:
+tls: failed to verify certificate: x509: certificate has expired or is not yet valid
+```
+
+**Workaround:**
+
+Regenerate the OpenCHAMI access token, update the OpenCHAMI certificates, and restart the OpenCHAMI services.
+
+```bash title="Run on: OIM host"
+export <OIM_HOSTNAME>_ACCESS_TOKEN=$(sudo bash -lc 'gen_access_token')
+openchami-certificate-update update <hostname>
+sudo systemctl restart openchami.target
+```
+
+**Verification:**
+
+After executing the above commands, rerun the failed Omnia deployment command. The configure_ochami role should complete successfully without the certificate validation error.
+
 ### Upgrade Gets Stuck at omnia.sh --upgrade with External NFS
 
 **Applicable to:** Omnia Core upgrade (2.1.0.0 → 2.2.0.1 and later) when using an external NFS share (for example, Dell PowerScale, generic NFS server).

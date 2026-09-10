@@ -35,7 +35,8 @@ and the OIM serves as the default Pulp registry.
 - All required certificates are stored using Ansible Vault to ensure complete
   confidentiality and integrity within the cluster.
 - All repository URLs for the software packages are accessible. If not, the
-  download will fail for that specific package.
+  download will fail for that specific package. In case of unreachable repository
+  URLs, please refer to [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim).
 - By default, an active RHEL subscription may configure the repository to
   RHEL 10.1. However, Omnia requires the repository to be set to **RHEL 10.0**.
   Before starting, verify and adjust:

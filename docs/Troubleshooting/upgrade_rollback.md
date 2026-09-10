@@ -8,7 +8,7 @@ conflicts, manifest tracking, and component-specific failures.
 **Upgrade fails: "A rollback is currently in progress"**
 
 ???+ note "Symptom"
-
+How does this affect 
     The upgrade playbook aborts with the message:
     *A rollback is currently in progress. Cannot start an upgrade.*
 
@@ -502,50 +502,52 @@ conflicts, manifest tracking, and component-specific failures.
         a node's boot configuration appears incorrect after rollback, rerun the
         rollback for the corresponding component (`slurm` or `k8s`).
 
-**CRI-O package download fails during upgrade or fresh installation**
+**CRI-O Repository URL in local_repo_config.yml is unreachable from OIM**
 
 ???+ note "Symptom"
 
-    Upgrade to version 2.2.0.1 or fresh installation fails because the CRI-O
-    package cannot be downloaded from the configured repository URL.
+    In `local_repo_config.yml`, CRI-O URL is unreachable during upgrade or
+    fresh installation.
 
 ??? note "Cause"
 
-    The CRI-O repository URL in `local_repo.config` is invalid or unreachable.
-    The default URL may have encoding issues (for example, `%22` at the end),
-    points to an outdated repository, or the repository mirror is temporarily
-    unavailable.
+    The configured CRI-O repository URL is unreachable due to DNS failure,
+    geographic mirror redirection, or network restrictions. The primary CRI-O
+    repository URL is inaccessible from the OIM host.
 
 ??? note "Resolution"
 
-    1. Check the current CRI-O URL in your local repository configuration:
+    **Important**: Run the Pulp cleanup commands below only in case of rerun of
+    Omnia 2.2 fresh installation or Omnia 2.1 to 2.2 upgrade.
 
-        ```bash title="Run on: omnia_core container"
-        cat /opt/omnia/.data/local_repo.config
+    1. Remove the stale Pulp objects strictly in the same order:
+
+        ```bash title="Run on: OIM host"
+        pulp rpm distribution destroy --name "x86_64_rhel_10.0_cri-o-v1-35"
+        pulp rpm repository destroy --name "x86_64_rhel_10.0_cri-o-v1-35"
+        pulp rpm remote destroy --name "x86_64_rhel_10.0_cri-o-v1-35"
         ```
 
-    2. If the CRI-O URL contains issues, update it with the official OpenSUSE
-       repository URL. For example, replace:
+    2. Verify accessibility of the primary CRI-O repository URL:
 
-        ```
-        https://ftp.gwdg.de/pub/opensuse/repositories/isv:/cri-o:/stable:/v1.35/rpm/%22
-        ```
-
-        with the official working URL:
-
-        ```
-        https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.35/rpm/
+        ```bash title="Run on: OIM host"
+        CRIO_REPO_URL='https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.35/rpm/'
+        curl --fail --silent --show-error --head "$CRIO_REPO_URL"
+        curl --fail --silent --show-error --head "${CRIO_REPO_URL}repodata/repomd.xml"
         ```
 
-        Alternative mirror URLs that may work better in your region:
+    3. If the primary URL is unreachable, verify the alternative CRI-O mirror:
 
+        ```bash title="Run on: OIM host"
+        CRIO_REPO_URL='https://ftp.lysator.liu.se/pub/opensuse/repositories/isv:/cri-o:/stable:/v1.35/rpm/'
+        curl --fail --silent --show-error --head "$CRIO_REPO_URL"
+        curl --fail --silent --show-error --head "${CRIO_REPO_URL}repodata/repomd.xml"
         ```
-        https://ftp.lysator.liu.se/pub/opensuse/repositories/isv:/cri-o:/stable:/v1.35/rpm/
-        ```
 
-    3. Update the `local_repo.config` file with the corrected URL.
+    4. Update the CRI-O repository URL in `local_repo_config.yml` with the
+       accessible URL.
 
-    4. Re-run the appropriate playbook:
+    5. Re-run the appropriate playbook:
 
         **For upgrade:**
 
@@ -560,14 +562,7 @@ conflicts, manifest tracking, and component-specific failures.
         ansible-playbook local_repo.yml
         ```
 
-    !!! tip
-
-        Test the repository URL accessibility before updating the configuration
-        to ensure it's valid and reachable from your environment:
-
-        ```bash title="Run on: OIM host"
-        curl -I --connect-timeout 10 https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.35/rpm/
-        ```
+    6. Verify that the CRI-O repository is synchronized successfully.
 
 **BuildStreaM rollback hangs during Alembic database migration**
 

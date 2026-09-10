@@ -630,10 +630,6 @@ cd /omnia/upgrade
 ansible-playbook upgrade.yml
 ```
 
-!!! note
-
-    If `upgrade.yml` fails in case of unreachable repository URLs, please refer to [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim).
-
 **aarch64 clusters**: If your PXE mapping file contains aarch64 functional
 groups (e.g., `slurm_node_aarch64`), you must pass an inventory file with the
 `[admin_aarch64]` group:
@@ -659,6 +655,7 @@ The inventory file must define exactly one ARM admin node under the
     - NFS must be configured on the OIM for aarch64 image building to work.
     - If your cluster has only x86_64 nodes (no aarch64 entries in the PXE
       mapping file), the `-i` option is not required.
+    - If `upgrade.yml` fails in case of unreachable repository URLs, please refer to [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim).
 
 ## Post-Upgrade Verification
 

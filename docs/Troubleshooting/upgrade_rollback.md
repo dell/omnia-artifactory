@@ -502,6 +502,73 @@ conflicts, manifest tracking, and component-specific failures.
         a node's boot configuration appears incorrect after rollback, rerun the
         rollback for the corresponding component (`slurm` or `k8s`).
 
+**CRI-O package download fails during upgrade or fresh installation**
+
+???+ note "Symptom"
+
+    Upgrade to version 2.2.0.1 or fresh installation fails because the CRI-O
+    package cannot be downloaded from the configured repository URL.
+
+??? note "Cause"
+
+    The CRI-O repository URL in `local_repo.config` is invalid or unreachable.
+    The default URL may have encoding issues (for example, `%22` at the end),
+    points to an outdated repository, or the repository mirror is temporarily
+    unavailable.
+
+??? note "Resolution"
+
+    1. Check the current CRI-O URL in your local repository configuration:
+
+        ```bash title="Run on: omnia_core container"
+        cat /opt/omnia/.data/local_repo.config
+        ```
+
+    2. If the CRI-O URL contains issues, update it with the official OpenSUSE
+       repository URL. For example, replace:
+
+        ```
+        https://ftp.gwdg.de/pub/opensuse/repositories/isv:/cri-o:/stable:/v1.35/rpm/%22
+        ```
+
+        with the official working URL:
+
+        ```
+        https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.35/rpm/
+        ```
+
+        Alternative mirror URLs that may work better in your region:
+
+        ```
+        https://ftp.lysator.liu.se/pub/opensuse/repositories/isv:/cri-o:/stable:/v1.35/rpm/
+        ```
+
+    3. Update the `local_repo.config` file with the corrected URL.
+
+    4. Re-run the appropriate playbook:
+
+        **For upgrade:**
+
+        ```bash title="Run on: omnia_core container"
+        cd /omnia/upgrade
+        ansible-playbook upgrade.yml
+        ```
+
+        **For fresh installation:**
+
+        ```bash title="Run on: omnia_core container"
+        ansible-playbook local_repo.yml
+        ```
+
+    !!! tip
+
+        Test the repository URL accessibility before updating the configuration
+        to ensure it's valid and reachable from your environment:
+
+        ```bash title="Run on: OIM host"
+        curl -I --connect-timeout 10 https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.35/rpm/
+        ```
+
 **BuildStreaM rollback hangs during Alembic database migration**
 
 ???+ note "Symptom"

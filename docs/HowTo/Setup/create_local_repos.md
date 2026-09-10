@@ -36,7 +36,9 @@ and the OIM serves as the default Pulp registry.
   confidentiality and integrity within the cluster.
 - All repository URLs for the software packages are accessible. If not, the
   download will fail for that specific package. In case of unreachable repository
-  URLs, please refer to [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim).
+  URLs, please refer to:
+  - [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim)
+  - [EPEL Repository Unavailable/Unstable/Too Slow](../../Troubleshooting/local_repo.md#epel-repository-unavailableunstabletoo-slow)
 - By default, an active RHEL subscription may configure the repository to
   RHEL 10.1. However, Omnia requires the repository to be set to **RHEL 10.0**.
   Before starting, verify and adjust:
@@ -263,6 +265,8 @@ Confirm that each expected repository distribution is listed and accessible.
 
 ## Troubleshooting
 
-- **local_repo.yml fails with FAILED status for a package**: Re-run `local_repo.yml`. If the failure persists, verify that the repository URL is accessible and the package exists in the remote repository.
+- **local_repo.yml fails with FAILED status for a package**: Re-run `local_repo.yml`. If the failure persists, verify that the repository URL is accessible and the package exists in the remote repository. For specific repository URL issues, refer to:
+  - [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim)
+  - [EPEL Repository Unavailable/Unstable/Too Slow](../../Troubleshooting/local_repo.md#epel-repository-unavailableunstabletoo-slow)
 - **Pulp sync takes too long or times out**: Check network bandwidth and connectivity from the OIM to the remote repositories. CUDA repositories are particularly large.
 - **Metadata warning about policy change**: This is expected when switching between `always` and `partial` policies. The playbook proceeds automatically after 15 seconds.

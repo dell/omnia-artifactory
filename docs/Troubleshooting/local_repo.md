@@ -132,7 +132,7 @@ Issues related to the `local_repo.yml` playbook, Pulp container operations, and 
 
     For PowerScale-specific configuration details, see the PowerScale configuration on [Deploy PowerScale CSI](../HowTo/Kubernetes/deploy_powerscale_csi.md) page.
 
-## EPEL Repository Unavailable/Unstable/Too Slow
+## EPEL Repository Unavailable/Unstable/Too Slow {#epel-repository-unavailableunstabletoo-slow}
 
 ???+ note "Symptom"
 
@@ -422,6 +422,9 @@ Issues related to the `local_repo.yml` playbook, Pulp container operations, and 
         - If external URLs are unreachable, verify DNS resolution and firewall rules on OIM.
         - If SSL certificate errors occur for user repos, verify that certificate files exist under the expected path and are valid.
         - If Docker Hub rate limiting occurs, wait and retry, or configure Docker Hub credentials in `omnia_config_credentials.yml`.
+        - For specific repository URL issues, refer to:
+            - [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim)
+            - [EPEL Repository Unavailable/Unstable/Too Slow](#epel-repository-unavailableunstabletoo-slow)
 
     6. Rerun `local_repo.yml` after resolving the connectivity issues. Previously downloaded packages are not re-downloaded.
 

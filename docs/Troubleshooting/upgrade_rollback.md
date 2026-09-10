@@ -564,6 +564,10 @@ How does this affect
 
     6. Verify that the CRI-O repository is synchronized successfully.
 
+    !!! note
+
+        For EPEL repository issues during upgrade, also refer to [EPEL Repository Unavailable/Unstable/Too Slow](local_repo.md#epel-repository-unavailableunstabletoo-slow).
+
 **BuildStreaM rollback hangs during Alembic database migration**
 
 ???+ note "Symptom"

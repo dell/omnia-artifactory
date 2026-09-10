@@ -655,6 +655,9 @@ The inventory file must define exactly one ARM admin node under the
     - NFS must be configured on the OIM for aarch64 image building to work.
     - If your cluster has only x86_64 nodes (no aarch64 entries in the PXE
       mapping file), the `-i` option is not required.
+    - If `upgrade.yml` fails in case of unreachable repository URLs, please refer to:
+      - [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim)
+      - [EPEL Repository Unavailable/Unstable/Too Slow](../Troubleshooting/local_repo.md#epel-repository-unavailableunstabletoo-slow)
 
 ## Post-Upgrade Verification
 

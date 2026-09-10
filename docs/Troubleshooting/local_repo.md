@@ -132,7 +132,7 @@ Issues related to the `local_repo.yml` playbook, Pulp container operations, and 
 
     For PowerScale-specific configuration details, see the PowerScale configuration on [Deploy PowerScale CSI](../HowTo/Kubernetes/deploy_powerscale_csi.md) page.
 
-## EPEL Repository Unavailable/Unstable/Too Slow
+## EPEL Repository Unavailable/Unstable/Too Slow {#epel-repository-unavailableunstabletoo-slow}
 
 ???+ note "Symptom"
 
@@ -422,8 +422,64 @@ Issues related to the `local_repo.yml` playbook, Pulp container operations, and 
         - If external URLs are unreachable, verify DNS resolution and firewall rules on OIM.
         - If SSL certificate errors occur for user repos, verify that certificate files exist under the expected path and are valid.
         - If Docker Hub rate limiting occurs, wait and retry, or configure Docker Hub credentials in `omnia_config_credentials.yml`.
+        - For specific repository URL issues, refer to:
+            - [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim)
+            - [EPEL Repository Unavailable/Unstable/Too Slow](#epel-repository-unavailableunstabletoo-slow)
 
     6. Rerun `local_repo.yml` after resolving the connectivity issues. Previously downloaded packages are not re-downloaded.
+
+## CRI-O Repository URL in local_repo_config.yml is unreachable from OIM {#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim}
+
+???+ note "Symptom"
+
+    In `local_repo_config.yml`, CRI-O URL is unreachable.
+
+??? note "Cause"
+
+    The configured CRI-O repository URL is unreachable due to DNS failure,
+    geographic mirror redirection, or network restrictions. The primary CRI-O
+    repository URL is inaccessible from the OIM host.
+
+??? note "Resolution"
+
+    **Important**: Run the Pulp cleanup commands below only in case of rerun of
+    Omnia 2.2 fresh installation or Omnia 2.1 to 2.2 upgrade.
+
+    1. Remove the stale Pulp objects strictly in the same order:
+
+        ```bash title="Run on: OIM host"
+        pulp rpm distribution destroy --name "x86_64_rhel_10.0_cri-o-v1-35"
+        pulp rpm repository destroy --name "x86_64_rhel_10.0_cri-o-v1-35"
+        pulp rpm remote destroy --name "x86_64_rhel_10.0_cri-o-v1-35"
+        ```
+
+    2. Verify accessibility of the primary CRI-O repository URL:
+
+        ```bash title="Run on: OIM host"
+        CRIO_REPO_URL='https://download.opensuse.org/repositories/isv:/cri-o:/stable:/v1.35/rpm/'
+        curl --fail --silent --show-error --head "$CRIO_REPO_URL"
+        curl --fail --silent --show-error --head "${CRIO_REPO_URL}repodata/repomd.xml"
+        ```
+
+    3. If the primary URL is unreachable, verify the alternative CRI-O mirror:
+
+        ```bash title="Run on: OIM host"
+        CRIO_REPO_URL='https://ftp.lysator.liu.se/pub/opensuse/repositories/isv:/cri-o:/stable:/v1.35/rpm/'
+        curl --fail --silent --show-error --head "$CRIO_REPO_URL"
+        curl --fail --silent --show-error --head "${CRIO_REPO_URL}repodata/repomd.xml"
+        ```
+
+    4. Update the CRI-O repository URL in `local_repo_config.yml` with the
+       accessible URL.
+
+    5. Re-run the `local_repo.yml` playbook to recreate the removed Pulp objects:
+
+        ```bash title="Run on: omnia_core container"
+        ansible-playbook local_repo.yml
+        ```
+
+    6. Re-run other playbooks and verify that the CRI-O repository is
+       synchronized successfully.
 
 ## Software Installation Fails With Checksum Error
 

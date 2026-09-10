@@ -189,7 +189,9 @@ Omnia uses the following ports on the OIM. Ensure these ports are not assigned t
 | ☐ | Docker Hub credentials available | A Docker Hub account (free tier is sufficient) is needed for pulling container images during `local_repo.yml`. |
 | ☐ | OIM has access to public network | Required to download and store packages/images to the desired NFS share. |
 | ☐ | Certificates stored using Ansible Vault | Ensure all required certificates are stored using Ansible Vault for confidentiality and integrity within the cluster. |
-| ☐ | All repository URLs accessible | Verify that all repository URLs for software packages are accessible. If not, the download will fail for that specific package. |
+| ☐ | All repository URLs accessible | Verify that all repository URLs for software packages are accessible. If not, the download will fail for that specific package. For specific repository URL issues, refer to:
+  - [CRI-O Repository URL in local_repo_config.yml is unreachable from OIM](../Troubleshooting/local_repo.md#cri-o-repository-url-in-local_repo_configyml-is-unreachable-from-oim)
+  - [EPEL Repository Unavailable/Unstable/Too Slow](../Troubleshooting/local_repo.md#epel-repository-unavailableunstabletoo-slow) |
 | ☐ | RHEL release pinned to 10.0 | By default, an active RHEL subscription may configure the repository to RHEL 10.1. Omnia requires RHEL 10.0. Verify and set: `subscription-manager release --show` and `sudo subscription-manager release --set=10.0` |
 
 ## BIOS Settings on Target Nodes

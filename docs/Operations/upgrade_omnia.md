@@ -103,10 +103,10 @@ This image must be present on the OIM host before you run
 `omnia.sh --upgrade`. To build it:
 
 1. On the OIM host, clone the Omnia containers repository on the
-   `omnia-container-v2.2.0.1` branch:
+   `omnia-container-v2.2.0.0` branch:
 
     ```bash title="Run on: OIM host"
-    git clone -b omnia-container-v2.2.0.1 https://github.com/dell/omnia-containers.git
+    git clone -b omnia-container-v2.2.0.0 https://github.com/dell/omnia-containers.git
     ```
 
 2. Build the core container image using the build script provided in the
